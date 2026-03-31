@@ -1,0 +1,16 @@
+{
+  "name": "atx-trash-valet",
+  "version": "1.0.0",
+  "description": "ATX Trash Valet — Austin's Premier Doorstep Trash & Recycling Service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
