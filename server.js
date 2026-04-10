@@ -1,10 +1,19 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'luke@austinmdg.com',
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,8 +34,8 @@ pages.filter(p => p !== 'index').forEach(p => {
   app.get('/' + p, (_req, res) => res.sendFile(path.join(__dirname, 'public/' + p + '.html')));
 });
 
-// Contact form handler — saves leads to data/leads.json
-app.post('/api/contact', (req, res) => {
+// Contact form handler — saves leads to data/leads.json and sends email
+app.post('/api/contact', async (req, res) => {
   const { name, phone, property, units, message, source } = req.body;
 
   if (!name || !phone) {
@@ -44,10 +53,13 @@ app.post('/api/contact', (req, res) => {
     timestamp: new Date().toISOString()
   };
 
-  const leadsFile = path.join(__dirname, 'data/leads.json');
+  // Save to leads file
+  const dataDir = path.join(__dirname, 'data');
+  const leadsFile = path.join(dataDir, 'leads.json');
   let leads = [];
 
   try {
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
     if (fs.existsSync(leadsFile)) {
       leads = JSON.parse(fs.readFileSync(leadsFile, 'utf8'));
     }
@@ -59,6 +71,32 @@ app.post('/api/contact', (req, res) => {
   fs.writeFileSync(leadsFile, JSON.stringify(leads, null, 2));
 
   console.log(`\n✅ NEW LEAD: ${name} — ${phone} — ${property || 'No property listed'}`);
+
+  // Send email notification
+  const mailOptions = {
+    from: 'luke@austinmdg.com',
+    to: 'luke@austinmdg.com',
+    subject: `New Free Quote Request — ${name}`,
+    html: `
+      <h2>New Quote Request from ATX Trash Valet Website</h2>
+      <table style="border-collapse:collapse;width:100%;max-width:600px;">
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Name</td><td style="padding:8px;border:1px solid #ddd;">${name}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Phone</td><td style="padding:8px;border:1px solid #ddd;">${phone}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Property</td><td style="padding:8px;border:1px solid #ddd;">${property || '—'}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Number of Units</td><td style="padding:8px;border:1px solid #ddd;">${units || '—'}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Message</td><td style="padding:8px;border:1px solid #ddd;">${message || '—'}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Source</td><td style="padding:8px;border:1px solid #ddd;">${source || 'website'}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Submitted At</td><td style="padding:8px;border:1px solid #ddd;">${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })} (CT)</td></tr>
+      </table>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`📧 Email notification sent for lead: ${name}`);
+  } catch (err) {
+    console.error(`❌ Failed to send email notification: ${err.message}`);
+  }
 
   res.json({ success: true, message: 'Thank you! We\'ll be in touch within 24 hours.' });
 });
