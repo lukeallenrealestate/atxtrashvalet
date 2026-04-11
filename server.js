@@ -3,7 +3,8 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -67,6 +68,6 @@ app.use((_req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🏠 ATX Trash Valet running at http://localhost:${PORT}\n`);
+app.listen(PORT, HOST, () => {
+  console.log(`\n🏠 ATX Trash Valet running at http://${HOST}:${PORT}\n`);
 });
