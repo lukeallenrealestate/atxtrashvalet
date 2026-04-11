@@ -10,14 +10,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Clean URL routes
+const pages = [
+  'index', 'contact', 'services', 'about', 'areas-served',
+  'trash-valet-service', 'bulk-trash-pickup', 'faq',
+  'pricing', 'property-managers',
+  'downtown-austin-trash-valet', 'south-austin-trash-valet',
+  'north-austin-trash-valet', 'east-austin-trash-valet',
+  'west-austin-trash-valet', 'the-domain-trash-valet',
+  'mueller-trash-valet', 'round-rock-trash-valet'
+];
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
-app.get('/contact', (_req, res) => res.sendFile(path.join(__dirname, 'public/contact.html')));
-app.get('/services', (_req, res) => res.sendFile(path.join(__dirname, 'public/services.html')));
-app.get('/about', (_req, res) => res.sendFile(path.join(__dirname, 'public/about.html')));
-app.get('/areas-served', (_req, res) => res.sendFile(path.join(__dirname, 'public/areas-served.html')));
-app.get('/trash-valet-service', (_req, res) => res.sendFile(path.join(__dirname, 'public/trash-valet-service.html')));
-app.get('/bulk-trash-pickup', (_req, res) => res.sendFile(path.join(__dirname, 'public/bulk-trash-pickup.html')));
-app.get('/faq', (_req, res) => res.sendFile(path.join(__dirname, 'public/faq.html')));
+pages.filter(p => p !== 'index').forEach(p => {
+  app.get('/' + p, (_req, res) => res.sendFile(path.join(__dirname, 'public/' + p + '.html')));
+});
 
 // Contact form handler — saves leads to data/leads.json
 app.post('/api/contact', (req, res) => {
