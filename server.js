@@ -8,11 +8,15 @@ const HOST = '0.0.0.0';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Clean URL for /blog (must be before static middleware to avoid 301 redirect to /blog/)
+app.get('/blog', (_req, res) => res.sendFile(path.join(__dirname, 'public/blog/index.html')));
+
+app.use(express.static(path.join(__dirname, 'public'), { redirect: false }));
 
 // Clean URL routes
 const pages = [
-  'index', 'contact', 'services', 'about', 'areas-served',
+  'contact', 'services', 'about', 'areas-served',
   'trash-valet-service', 'bulk-trash-pickup', 'faq',
   'pricing', 'property-managers',
   'downtown-austin-trash-valet', 'south-austin-trash-valet',
@@ -20,9 +24,18 @@ const pages = [
   'west-austin-trash-valet', 'the-domain-trash-valet',
   'mueller-trash-valet', 'round-rock-trash-valet'
 ];
+const blogPosts = [
+  'what-is-valet-trash-service',
+  'valet-trash-cost-guide',
+  'apartment-amenities-resident-retention',
+  'how-to-switch-valet-trash-providers'
+];
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
-pages.filter(p => p !== 'index').forEach(p => {
+pages.forEach(p => {
   app.get('/' + p, (_req, res) => res.sendFile(path.join(__dirname, 'public/' + p + '.html')));
+});
+blogPosts.forEach(p => {
+  app.get('/blog/' + p, (_req, res) => res.sendFile(path.join(__dirname, 'public/blog/' + p + '.html')));
 });
 
 // Contact form handler — saves leads to data/leads.json
