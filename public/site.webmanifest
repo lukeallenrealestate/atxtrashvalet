@@ -1,0 +1,23 @@
+{
+  "name": "ATX Trash Valet",
+  "short_name": "ATX Trash Valet",
+  "description": "Austin's premier doorstep trash and recycling valet service for apartments and condos.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#2e7d32",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

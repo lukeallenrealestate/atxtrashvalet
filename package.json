@@ -12,6 +12,7 @@
     "nodemailer": "^8.0.5"
   },
   "devDependencies": {
+    "png-to-ico": "^3.0.1",
     "puppeteer": "^23.0.0"
   }
 }
